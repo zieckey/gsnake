@@ -2,7 +2,6 @@ package gsnake
 import (
     "sync"
     "container/list"
-    "io"
     "github.com/golang/glog"
     "time"
 )
@@ -15,7 +14,6 @@ type DirReader struct {
 
     waiting bool    //FIXME use atomic variable ??
     wakeup chan int
-
     currentReadingFile string
 
     mutex sync.Mutex
@@ -28,18 +26,9 @@ func NewPathReader(dir string) (*DirReader, error) {
     r.waiting = false
     r.files = list.New()
     r.wakeup = make(chan int)
-    r.fr = createReader()
+    r.fr = r.createReader()
     return r, nil
 }
-
-//func (r *PathReader) ReadLine() (line string, err error)  {
-//
-//    return line, err
-//}
-//
-//func (r *PathReader) Read(p []byte) (n int, err error) {
-//    return 0, nil
-//}
 
 func (r *DirReader) add(file string) (err error) {
     r.mutex.Lock()
@@ -78,12 +67,9 @@ func (r *DirReader) OnFileCreated(file string) (err error) {
     return nil
 }
 
-func createReader() FileReader {
-    //GzipReader, PTailReader
-    if *reader_type == "PTailReader" {
-        return NewPTailFileReader()
-    } else if *reader_type == "GzipReader" {
-        return NewGzipFileReader()
+func (r *DirReader) createReader() FileReader {
+    if *reader_type == "PTailReader" || *reader_type == "GzipReader" {
+        return NewTextFileTailReader(r)
     } else if *reader_type == "PcapReader" {
         return NewPcapFileReader()
     }
@@ -91,20 +77,8 @@ func createReader() FileReader {
     return nil
 }
 
-func (r *DirReader) StartToRead() (err error) {
+func (r *DirReader) Read() (err error) {
     glog.Infof("Starting to read files ...")
-    startTime := time.Now()
-    var tfr TextFileReader
-    if *reader_type == "PTailReader" || *reader_type == "GzipReader" {
-        var ok bool
-        if tfr, ok = r.fr.(TextFileReader); !ok {
-            glog.Errorf("Dynamic cast to TextFileReader failed")
-            panic("ERROR")
-        }
-    } else if *reader_type == "PcapReader" {
-
-    }
-
     for {
         if r.files.Len() == 0 {
             glog.Infof("No files. Waiting ...")
@@ -120,21 +94,12 @@ func (r *DirReader) StartToRead() (err error) {
             continue
         }
 
-        r.fr.LoadFile(file, 0)
-        if len(r.currentReadingFile) > 0 {
-            glog.Infof("Finished to process file %v", r.currentReadingFile)
-            dispatcher.status.OnFileProcessingFinished(r.currentReadingFile, startTime)
-        }
-        startTime = time.Now()
         r.currentReadingFile = file
+        startTime := time.Now()
         glog.Infof("Begin to process file %v", file)
-
-        //FIXME 这里不太符合面向对象的类/接口继承关系，但也仅仅就两个分支，这里做了简单化处理。后续如果分支太多，再好好设计继承关系重构一下。
-        if tfr != nil {
-            r.readTextFile(tfr, file)
-        } else {
-            //glog.Infof("Pcap Reader does not need do anything")
-        }
+        r.fr.ReadFile(file, 0)
+        glog.Infof("Finished to process file %v", r.currentReadingFile)
+        dispatcher.status.OnFileProcessingFinished(r.currentReadingFile, startTime)
     }
 }
 
@@ -152,39 +117,46 @@ func (r *DirReader) nextFile() string {
     return file
 }
 
-func (r *DirReader) readTextFile(tfr TextFileReader, file string) {
-    var lastLine []byte
-    for {
-        line, err := tfr.ReadLine()
-        //glog.Infof("ReadLine: lastLine=<%s> current-read=<%s> <%v>", string(lastLine), string(line), err)
-        if len(lastLine) > 0 {
-            line = append(lastLine, line...)
-        }
-
-        if err == io.EOF {
-            if len(line) > 0 {
-                lastLine = line
-            }
-
-            // there are still files which are ready to be processed
-            if r.files.Len() > 0 {
-                break
-            }
-
-            // no more files. we wait this file to be updated or wait new file created
-            glog.Infof("no more files, we wait this file <%v> to be updated. Waiting ...", file)
-            r.Wait()
-            continue
-        } else if err != nil {
-            glog.Errorf("Read data from <%s> failed : %v", file, err.Error())
-            break
-        } else {
-            lastLine = []byte{}
-        }
-
-        dispatcher.textModule.OnRecord(line)
-    }
+func (r *DirReader) GetPendingFileCount() int {
+    r.mutex.Lock()
+    c := r.files.Len()
+    r.mutex.Unlock()
+    return c
 }
+//
+//func (r *DirReader) readTextFile(tfr TextFileReader, file string) {
+//    var lastLine []byte
+//    for {
+//        line, err := tfr.ReadLine()
+//        //glog.Infof("ReadLine: lastLine=<%s> current-read=<%s> <%v>", string(lastLine), string(line), err)
+//        if len(lastLine) > 0 {
+//            line = append(lastLine, line...)
+//        }
+//
+//        if err == io.EOF {
+//            if len(line) > 0 {
+//                lastLine = line
+//            }
+//
+//            // there are still files which are ready to be processed
+//            if r.files.Len() > 0 {
+//                break
+//            }
+//
+//            // no more files. we wait this file to be updated or wait new file created
+//            glog.Infof("no more files, we wait this file <%v> to be updated. Waiting ...", file)
+//            r.Wait()
+//            continue
+//        } else if err != nil {
+//            glog.Errorf("Read data from <%s> failed : %v", file, err.Error())
+//            break
+//        } else {
+//            lastLine = []byte{}
+//        }
+//
+//        dispatcher.textModule.OnRecord(line)
+//    }
+//}
 
 func (r *DirReader) Wait() int {
     r.waiting = true

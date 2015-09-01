@@ -59,11 +59,11 @@ func (h *FilesHandler) Run() {
 
     if h.priorityLevel <= 0 { // no priority
         r, _ := h.readers[h.dir]
-        r.StartToRead()
+        r.Read()
     } else {
         for priority := 0; priority < len(h.readers); priority++ {
             r, _ := h.readers[h.paths[priority]]
-            r.StartToRead() //TODO add priority and we can process next dir
+            r.Read() //TODO add priority and we can process next dir
         }
     }
 }

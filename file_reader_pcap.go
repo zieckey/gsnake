@@ -15,11 +15,7 @@ func NewPcapFileReader() *PcapFileReader {
 	}
 }
 
-func (r *PcapFileReader) Parse() {
-
-}
-
-func (r *PcapFileReader) LoadFile(file string, pos int) (err error) {
+func (r *PcapFileReader) ReadFile(file string, pos int) (err error) {
 	r.h, err = pcap.Openoffline(file)
 	if r.h == nil {
 		glog.Errorf("Openoffline(%s) failed: %s", file, err)
