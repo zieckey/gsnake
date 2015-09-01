@@ -1,4 +1,4 @@
-package freader
+package gsnake
 
 import (
 	"github.com/akrennmair/gopcap"

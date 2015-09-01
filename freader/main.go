@@ -1,22 +1,23 @@
-package main 
+package main
 
 import (
-	"github.com/zieckey/gohello/freader"
-	"log"
-	"github.com/golang/glog"
-	"github.com/akrennmair/gopcap"
-	"time"
 	"flag"
 	"fmt"
+	"github.com/akrennmair/gopcap"
+	"github.com/golang/glog"
+	"github.com/zieckey/gsnake"
+	"log"
+	"time"
 )
 
+type MyTextModule struct{}
 
-type MyTextModule struct {}
 func (m *MyTextModule) OnRecord(line []byte) {
 	glog.Infof("DefaultTextModule : Read a new line, len=%v <%s> ", len(line), string(line))
 }
 
-type MyPcapModule struct {}
+type MyPcapModule struct{}
+
 func (m *MyPcapModule) OnPcapPacket(pkt *pcap.Packet) {
 	glog.Infof("time: %d.%06d (%s) caplen: %d len: %d",
 		int64(pkt.Time.Second()), int64(pkt.Time.Nanosecond()),
@@ -35,11 +36,11 @@ func (m *MyPcapModule) OnPcapPacket(pkt *pcap.Packet) {
 	fmt.Printf("\n\n")
 }
 
-// ./freader.exe -file_path="e:\1\1" -file_pattern="ddd*" -stderrthreshold=0 -logtostderr=true
+// ./gsnake.exe -file_path="e:\1\1" -file_pattern="ddd*" -stderrthreshold=0 -logtostderr=true
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
-	dispatcher, err := freader.NewDispatcher()
+	dispatcher, err := gsnake.NewDispatcher()
 	if err != nil {
 		log.Panic(err.Error())
 		return
@@ -48,4 +49,3 @@ func main() {
 	dispatcher.RegisterTextModule(&MyTextModule{})
 	dispatcher.Run()
 }
-

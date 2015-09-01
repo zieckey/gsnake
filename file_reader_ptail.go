@@ -1,4 +1,4 @@
-package freader
+package gsnake
 import (
     "os"
     "github.com/golang/glog"

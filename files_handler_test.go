@@ -1,4 +1,4 @@
-package freader_test
+package gsnake_test
 
 //import (
 //    "testing"

@@ -1,4 +1,4 @@
-package freader
+package gsnake
 
 type FileReader interface {
     LoadFile(file string, pos int) (err error)
