@@ -1,5 +1,5 @@
 package gsnake
 
 type FileReader interface {
-	ReadFile(file string, pos int) (err error)
+	ReadFile(file string, offset int) (err error)
 }

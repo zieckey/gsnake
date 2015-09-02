@@ -36,7 +36,11 @@ func (m *MyPcapModule) OnPcapPacket(pkt *pcap.Packet) {
 	fmt.Printf("\n\n")
 }
 
-// ./gsnake.exe -file_path="e:\1\1" -file_pattern="ddd*" -stderrthreshold=0 -logtostderr=true
+/*
+ go build && ./freader.exe -file_path="e:\1\1" -file_pattern="ddd*"       -reader_type="PTailReader" -stderrthreshold=0 -logtostderr=true
+ go build && ./freader.exe -file_path="e:\1\gzip" -file_pattern="ddd*.gz" -reader_type="GzipReader"  -stderrthreshold=0 -logtostderr=true
+ go build && ./freader.exe -file_path="e:\1\pcap" -file_pattern="*.pcap"  -reader_type="PcapReader"  -stderrthreshold=0 -logtostderr=true
+ */
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
