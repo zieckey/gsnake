@@ -4,6 +4,7 @@ import (
     "container/list"
     "github.com/golang/glog"
     "time"
+    "sync/atomic"
 )
 
 type DirReader struct {
@@ -12,7 +13,7 @@ type DirReader struct {
 
     fr FileReader
 
-    waiting bool    //FIXME use atomic variable ??
+    waiting int32
     wakeup chan int
     currentReadingFile string
 
@@ -23,7 +24,7 @@ type DirReader struct {
 func NewPathReader(dir string) (*DirReader, error) {
     r := &DirReader{}
     r.dir = dir
-    r.waiting = false
+    r.waiting = 0
     r.files = list.New()
     r.wakeup = make(chan int)
     r.fr = r.createReader()
@@ -43,7 +44,7 @@ const (
 )
 
 func (r *DirReader) OnFileModified(file string) (err error) {
-    if r.currentReadingFile == file && r.waiting {
+    if r.currentReadingFile == file && atomic.LoadInt32(&r.waiting) > 0 {
         glog.Infof("send kModify signal")
         r.wakeup <- kModify
     } else {
@@ -54,7 +55,7 @@ func (r *DirReader) OnFileModified(file string) (err error) {
 
 func (r *DirReader) OnFileCreated(file string) (err error) {
     r.add(file)
-    if r.waiting && r.files.Len() == 1 {
+    if atomic.LoadInt32(&r.waiting) > 0 && r.files.Len() == 1 {
         /*
         r.waiting : we will send a signal only if the goroutine is waiting
         r.files.Len() == 0 : when we create more than 2 files in the same time, the waiting goroutine may be still waiting when we try to send the second signal
@@ -123,44 +124,10 @@ func (r *DirReader) GetPendingFileCount() int {
     r.mutex.Unlock()
     return c
 }
-//
-//func (r *DirReader) readTextFile(tfr TextFileReader, file string) {
-//    var lastLine []byte
-//    for {
-//        line, err := tfr.ReadLine()
-//        //glog.Infof("ReadLine: lastLine=<%s> current-read=<%s> <%v>", string(lastLine), string(line), err)
-//        if len(lastLine) > 0 {
-//            line = append(lastLine, line...)
-//        }
-//
-//        if err == io.EOF {
-//            if len(line) > 0 {
-//                lastLine = line
-//            }
-//
-//            // there are still files which are ready to be processed
-//            if r.files.Len() > 0 {
-//                break
-//            }
-//
-//            // no more files. we wait this file to be updated or wait new file created
-//            glog.Infof("no more files, we wait this file <%v> to be updated. Waiting ...", file)
-//            r.Wait()
-//            continue
-//        } else if err != nil {
-//            glog.Errorf("Read data from <%s> failed : %v", file, err.Error())
-//            break
-//        } else {
-//            lastLine = []byte{}
-//        }
-//
-//        dispatcher.textModule.OnRecord(line)
-//    }
-//}
 
 func (r *DirReader) Wait() int {
-    r.waiting = true
+    atomic.AddInt32(&r.waiting, 1)
     event := <-r.wakeup
-    r.waiting = false
+    atomic.AddInt32(&r.waiting, -1)
     return event
 }
