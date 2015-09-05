@@ -63,7 +63,9 @@ func (h *FilesHandler) Run() {
     } else {
         for priority := 0; priority < len(h.readers); priority++ {
             r, _ := h.readers[h.paths[priority]]
-            r.Read() //TODO add priority and we can process next dir
+            // Currently the routine will block here and only process the first data dir (the highest priority)
+            // TODO add priority and we can process next dir
+            r.Read()
         }
     }
 }
