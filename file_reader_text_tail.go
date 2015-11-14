@@ -51,6 +51,7 @@ func (r *TextFileTailReader) ReadFile(file string, offset int) (err error) {
 		return err
 	}
 	glog.Infof("OpenFile %v OK", file)
+	defer r.fp.Close()
 
 	if offset > 0 {
 		r.fp.Seek(int64(offset), os.SEEK_SET)
