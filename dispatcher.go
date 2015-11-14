@@ -5,6 +5,7 @@ import (
 	"github.com/howeyc/fsnotify"
 	"path/filepath"
 	"sync"
+	"strings"
 )
 
 type Dispatcher struct {
@@ -74,15 +75,17 @@ func (d *Dispatcher) watchEvent(wg *sync.WaitGroup) {
 	for {
 		select {
 		case ev := <-d.watcher.Event:
-			glog.Info("event:", ev, " name=", ev.Name)
-			if ev.IsCreate() {
-				d.onCreate(ev)
-			} else if ev.IsDelete() {
-				d.onDelete(ev)
-			} else if ev.IsModify() {
-				d.onModify(ev)
-			} else {
-				glog.Info("don't care this event:", ev)
+			if strings.ToLower(ev.Name) != strings.ToLower(*statusFile) {
+				glog.Info("event:", ev, " name=", ev.Name)
+				if ev.IsCreate() {
+					d.onCreate(ev)
+				} else if ev.IsDelete() {
+					d.onDelete(ev)
+				} else if ev.IsModify() {
+					d.onModify(ev)
+				} else {
+					glog.Info("don't care this event:", ev)
+				}
 			}
 		case err := <-d.watcher.Error:
 			glog.Info("error:", err)

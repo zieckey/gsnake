@@ -3,6 +3,7 @@ import (
     "os"
     "bufio"
     "bytes"
+    "github.com/golang/glog"
 )
 
 type PTailFileReader struct {
@@ -18,10 +19,11 @@ func NewPTailFileReader() *PTailFileReader {
 }
 
 func (r *PTailFileReader) LoadFile(filepath string, fp *os.File) (err error) {
-
     if r.r == nil {
+        glog.Infof("LoadFile : it is 1st time to here, we create a new reader: bufio.NewReader(fp)")
         r.r = bufio.NewReader(fp)
     } else {
+        glog.Infof("Reset reader")
         r.r.Reset(fp)
     }
 

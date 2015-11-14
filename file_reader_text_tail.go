@@ -79,6 +79,10 @@ func (r *TextFileTailReader) readTextFile() {
 
 			// there are still files which are ready to be processed
 			if r.dr.GetPendingFileCount() > 0 {
+				if len(line) > 0 {
+					// The last line of the file
+					dispatcher.textModule.OnRecord(line)
+				}
 				break
 			}
 
