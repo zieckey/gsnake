@@ -21,7 +21,7 @@ func NewGzipFileReader() *GzipFileReader {
     return br
 }
 
-func (r *GzipFileReader) LoadFile(fp *os.File) (err error) {
+func (r *GzipFileReader) LoadFile(filepath string, fp *os.File) (err error) {
     if r.r == nil {
         r.gr, err = gzip.NewReader(fp)
         if err != nil {

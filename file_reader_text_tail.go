@@ -7,7 +7,7 @@ import (
 )
 
 type TextFileReader interface {
-	LoadFile(fp *os.File) error
+	LoadFile(filepath string, fp *os.File) error
 	ReadLine() ([]byte, error)
 }
 
@@ -56,7 +56,7 @@ func (r *TextFileTailReader) ReadFile(file string, offset int) (err error) {
 		r.fp.Seek(int64(offset), os.SEEK_SET)
 	}
 
-	r.r.LoadFile(r.fp)
+	r.r.LoadFile(file, r.fp)
 
 	r.readTextFile()
 

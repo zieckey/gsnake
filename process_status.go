@@ -9,6 +9,7 @@ import (
     "sort"
     "strconv"
     "log"
+    "github.com/golang/glog"
 )
 
 type FileProcessingTime struct {
@@ -39,7 +40,7 @@ func NewProcessStatus(statusFile string) (ps *ProcessStatus, err error) {
     if IsExist(statusFile) {
         ps.statusFileFp, err = os.OpenFile(statusFile, os.O_RDWR, 0755)
         if err != nil {
-            fmt.Printf("open status file <%v> failed : %v\n", err.Error())
+            glog.Errorf("open status file <%v> failed : %v\n", statusFile, err.Error())
             return nil, err
         }
         if err = ps.parse(); err != nil {
@@ -49,7 +50,7 @@ func NewProcessStatus(statusFile string) (ps *ProcessStatus, err error) {
     } else {
         ps.statusFileFp, err = os.OpenFile(statusFile, os.O_CREATE | os.O_RDWR, 0755)
         if err != nil {
-            fmt.Printf("open status file <%v> failed : %v\n", err.Error())
+            glog.Errorf("open status file <%v> failed : %v\n", statusFile, err.Error())
             return nil, err
         }
     }

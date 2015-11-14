@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/akrennmair/gopcap"
 	"github.com/golang/glog"
-	"github.com/zieckey/gsnake"
+	"../../gsnake"
 	"log"
 	"time"
 )

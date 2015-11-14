@@ -17,7 +17,7 @@ func NewPTailFileReader() *PTailFileReader {
     return br
 }
 
-func (r *PTailFileReader) LoadFile(fp *os.File) (err error) {
+func (r *PTailFileReader) LoadFile(filepath string, fp *os.File) (err error) {
 
     if r.r == nil {
         r.r = bufio.NewReader(fp)
