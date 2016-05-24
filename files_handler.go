@@ -27,6 +27,7 @@ func NewFilesHandler(dir string) (h *FilesHandler, err error) {
             return nil, err
         }
         h.paths = append(h.paths, dir)
+        glog.Infof("Add dir <%v> to read", dir)
     } else {
         for i := 0; i < h.priorityLevel; i++ {
             p := filepath.Join(dir, strconv.Itoa(i))
@@ -35,6 +36,7 @@ func NewFilesHandler(dir string) (h *FilesHandler, err error) {
                 return nil, err
             }
             h.paths = append(h.paths, p)
+            glog.Infof("Add dir <%v> to read", dir)
         }
     }
 
@@ -75,7 +77,7 @@ func (h *FilesHandler) OnFileModified(file string) {
     if r, ok := h.readers[dir]; ok {
         r.OnFileModified(file)
     } else {
-        glog.Errorf("Append file failed, cannot found reader for this file <%v>", file)
+        glog.Errorf("Append file failed, cannot found reader <%v> for this file <%v>", dir, file)
     }
 }
 
@@ -84,7 +86,7 @@ func (h *FilesHandler) OnFileCreated(file string) {
     if r, ok := h.readers[dir]; ok {
         r.OnFileCreated(file)
     } else {
-        glog.Errorf("Append file failed, cannot found reader for this file <%v>", file)
+        glog.Errorf("Append file failed, cannot found reader <%v> for this file <%v>", dir, file)
     }
 }
 

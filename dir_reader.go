@@ -82,7 +82,7 @@ func (r *DirReader) Read() (err error) {
     glog.Infof("Starting to read files ...")
     for {
         if r.files.Len() == 0 {
-            glog.Infof("No files. Waiting ...")
+            glog.Infof("No more files. Waiting ...")
             r.Wait()
             if r.files.Len() == 0 {
                 glog.Errorf("This is a logic ERROR, but we ignore it right now and lately we should review this code logic.")

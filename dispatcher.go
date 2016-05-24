@@ -39,7 +39,7 @@ func newDispatcher(dir string) (d *Dispatcher, err error) {
 		glog.Fatal(err)
 	}
 
-	d.h, err = NewFilesHandler(dir)
+	d.h, err = NewFilesHandler(d.dir)
 	if err != nil {
 		glog.Fatal(err)
 	}
@@ -52,7 +52,7 @@ func newDispatcher(dir string) (d *Dispatcher, err error) {
 func (d *Dispatcher) onCreate(ev *fsnotify.FileEvent) {
 	if IsDir(ev.Name) {
 		d.watcher.Watch(ev.Name)
-		//Ignore this : FIXME if we renamed ev.Name latterly, we should add the new name to the watching list.
+		//Ignore this : FIXME if we renamed ev.Name later, we should add the new name to the watching list.
 	} else {
 		if ok, _ := filepath.Match(*filePattern, filepath.Base(ev.Name)); ok {
 			d.h.OnFileCreated(ev.Name)

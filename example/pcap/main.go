@@ -10,12 +10,6 @@ import (
 	"time"
 )
 
-type MyTextModule struct{}
-
-func (m *MyTextModule) OnRecord(line []byte) {
-	glog.Infof("DefaultTextModule : Read a new line, len=%v <%s> ", len(line), string(line))
-}
-
 type MyPcapModule struct{}
 
 func (m *MyPcapModule) OnPcapPacket(pkt *pcap.Packet) {
@@ -37,9 +31,7 @@ func (m *MyPcapModule) OnPcapPacket(pkt *pcap.Packet) {
 }
 
 /*
- go build  && ./freader.exe -file_path="d:\1\1" -file_pattern="ddd*"       -reader_type="PTailReader" -stderrthreshold=0 -logtostderr=true
- go build  && ./freader.exe -file_path="d:\1\gzip" -file_pattern="ddd*.gz" -reader_type="GzipReader"  -stderrthreshold=0 -logtostderr=true
- go build  && ./freader.exe -file_path="d:\1\pcap" -file_pattern="*.pcap"  -reader_type="PcapReader"  -stderrthreshold=0 -logtostderr=true
+ go build  && ./pcap -file_path="./" -status="./status.txt" -file_pattern="*.pcap"  -reader_type="PcapReader" -stderrthreshold=0 -logtostderr=true
  */
 func main() {
 	flag.Parse()
@@ -50,6 +42,5 @@ func main() {
 		return
 	}
 	dispatcher.RegisterPcapModule(&MyPcapModule{})
-	dispatcher.RegisterTextModule(&MyTextModule{})
 	dispatcher.Run()
 }
