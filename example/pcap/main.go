@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/akrennmair/gopcap"
 	"github.com/golang/glog"
 	"github.com/zieckey/gsnake"
-	"log"
-	"time"
 )
 
 type MyPcapModule struct{}

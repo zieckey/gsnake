@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/golang/glog"
 	"github.com/zieckey/gsnake"
-	"log"
 )
 
 type MyTextModule struct{}
