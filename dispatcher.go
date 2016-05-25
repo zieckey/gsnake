@@ -44,8 +44,6 @@ func newDispatcher(dir string) (d *Dispatcher, err error) {
 		glog.Fatal(err)
 	}
 
-	d.textModule = &DefaultTextModule{}
-	d.pcapModule = &DefaultPcapModule{}
 	return d, err
 }
 

@@ -45,7 +45,7 @@ const (
 
 func (r *DirReader) OnFileModified(file string) (err error) {
     if r.currentReadingFile == file && atomic.LoadInt32(&r.waiting) > 0 {
-        glog.Infof("send kModify signal")
+        glog.Infof("The file <%s> has been modified which we are processing. And the processing goroutine is sleeping, so send kModify signal to it.", file)
         r.wakeup <- kModify
     } else {
         glog.Infof("do not need to send kModify signal")
@@ -56,10 +56,8 @@ func (r *DirReader) OnFileModified(file string) (err error) {
 func (r *DirReader) OnFileCreated(file string) (err error) {
     r.add(file)
     if atomic.LoadInt32(&r.waiting) > 0 && r.files.Len() == 1 {
-        /*
-        r.waiting : we will send a signal only if the goroutine is waiting
-        r.files.Len() == 0 : when we create more than 2 files in the same time, the waiting goroutine may be still waiting when we try to send the second signal
-         */
+        // r.waiting : we will send a signal only when the goroutine is waiting
+        // r.files.Len() == 0 : when we create more than 2 files in the same time, the waiting goroutine may be still waiting when we try to send the second signal
         glog.Infof("send kCreate signal")
         r.wakeup <- kCreate
     } else {

@@ -20,7 +20,7 @@ func NewPTailFileReader() *PTailFileReader {
 
 func (r *PTailFileReader) LoadFile(filepath string, fp *os.File) (err error) {
     if r.r == nil {
-        glog.Infof("LoadFile : it is 1st time to here, we create a new reader: bufio.NewReader(fp)")
+        glog.Infof("LoadFile : it is the first time to come here, we create a new reader: bufio.NewReader(fp)")
         r.r = bufio.NewReader(fp)
     } else {
         glog.Infof("Reset reader")

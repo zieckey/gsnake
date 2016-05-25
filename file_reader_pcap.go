@@ -25,7 +25,9 @@ func (r *PcapFileReader) ReadFile(file string, pos int) (err error) {
 
 	for pkt := r.h.Next(); pkt != nil; pkt = r.h.Next() {
 		pkt.Decode()
-		dispatcher.pcapModule.OnPcapPacket(pkt)
+		if dispatcher.pcapModule != nil {
+			dispatcher.pcapModule.OnPcapPacket(pkt)
+		}
 	}
     return  nil
 }

@@ -82,7 +82,7 @@ func (r *TextFileTailReader) readTextFile() {
 			if r.dr.GetPendingFileCount() > 0 {
 				if len(line) > 0 {
 					// The last line of the file
-					dispatcher.textModule.OnRecord(line)
+					r.onRecord(line)
 				}
 				break
 			}
@@ -98,6 +98,12 @@ func (r *TextFileTailReader) readTextFile() {
 			lastLine = []byte{}
 		}
 
+		r.onRecord(line)
+	}
+}
+
+func (r *TextFileTailReader) onRecord(line []byte) {
+	if dispatcher.textModule != nil {
 		dispatcher.textModule.OnRecord(line)
 	}
 }
