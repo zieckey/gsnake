@@ -48,6 +48,7 @@ func (r *DirReader) OnFileModified(file string) (err error) {
         glog.Infof("The file <%s> has been modified which we are processing. And the processing goroutine is sleeping, so send kModify signal to it.", file)
         r.wakeup <- kModify
     } else {
+        glog.Infof("r.currentReadingFile=%v file=%v r.waiting=%v", r.currentReadingFile, file, r.waiting)
         glog.Infof("do not need to send kModify signal")
     }
     return nil

@@ -34,6 +34,7 @@ func newDispatcher(dir string) (d *Dispatcher, err error) {
 	}
 
 	d.dir = strings.TrimSuffix(dir, "/")
+	d.dir = strings.TrimSuffix(dir, "\\")
 	d.status, err = NewProcessStatus(*statusFile)
 	if err != nil || d.status == nil {
 		glog.Fatal(err)
