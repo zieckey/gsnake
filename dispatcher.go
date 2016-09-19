@@ -114,6 +114,6 @@ func (d *Dispatcher) Close() {
 	d.watcher.Close()
 }
 
-func (d *Dispatcher) RegisterTextModule(m TextModule) {
+func (d *Dispatcher) Register(m TextModule) {
 	d.textModule = m
 }

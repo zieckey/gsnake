@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 
 	"github.com/golang/glog"
 	"github.com/zieckey/gsnake"
@@ -19,12 +18,11 @@ func (m *MyTextModule) OnRecord(line []byte) {
  */
 func main() {
 	flag.Parse()
-	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
 	dispatcher, err := gsnake.NewDispatcher()
 	if err != nil {
-		log.Panic(err.Error())
+		panic(err.Error())
 		return
 	}
-	dispatcher.RegisterTextModule(&MyTextModule{})
+	dispatcher.Register(&MyTextModule{})
 	dispatcher.Run()
 }
