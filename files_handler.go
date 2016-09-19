@@ -44,7 +44,7 @@ func NewFilesHandler(dir string) (h *FilesHandler, err error) {
 }
 
 func (h *FilesHandler) Run() {
-    glog.Infof("Running ...")
+    glog.Infof("FilesHandler Running ...")
     ff, err := LookupFiles(h.dir, *filePattern)
     if err != nil {
         log.Fatal("LoopupFiles <%s> with pathern <%s> failed : %v\n", dir, *filePattern, err.Error())
@@ -66,8 +66,22 @@ func (h *FilesHandler) Run() {
         for priority := 0; priority < len(h.readers); priority++ {
             r, _ := h.readers[h.paths[priority]]
             // Currently the routine will block here and only process the first data dir (the highest priority)
-            // TODO add priority and we can process next dir
+            // TODO add priority logic and we can process next dir
             r.Read()
+        }
+    }
+}
+
+func (h *FilesHandler) Stop() {
+    if h.priorityLevel <= 0 { // no priority
+        r, _ := h.readers[h.dir]
+        r.Stop()
+    } else {
+        for priority := 0; priority < len(h.readers); priority++ {
+            r, _ := h.readers[h.paths[priority]]
+            // Currently the routine will block here and only process the first data dir (the highest priority)
+            // TODO add priority logic and we can process next dir
+            r.Stop()
         }
     }
 }

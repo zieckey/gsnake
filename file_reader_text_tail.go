@@ -27,12 +27,12 @@ func NewTextFileTailReader(dr *DirReader) *TextFileTailReader {
 		dr:     dr,
 	}
 
-	if *reader_type == "PTailReader" {
+	if *readerType == "PTailReader" {
 		r.r = NewPTailFileReader()
-	} else if *reader_type == "GzipReader" {
+	} else if *readerType == "GzipReader" {
 		r.r = NewGzipFileReader()
 	} else {
-		glog.Fatal("Error reader_type %v", *reader_type)
+		glog.Fatal("Error reader_type %v", *readerType)
 	}
 
 	return r
@@ -66,7 +66,7 @@ func (r *TextFileTailReader) ReadFile(file string, offset int) (err error) {
 
 func (r *TextFileTailReader) readTextFile() {
 	var lastLine []byte
-	for {
+	for r.dr.Running {
 		line, err := r.r.ReadLine()
 		//glog.Infof("ReadLine: lastLine=<%s> current-read=<%s> <%v>", string(lastLine), string(line), err)
 		if len(lastLine) > 0 {
@@ -84,6 +84,7 @@ func (r *TextFileTailReader) readTextFile() {
 					// The last line of the file
 					r.onRecord(line)
 				}
+				// Processing this file is finished
 				break
 			}
 
@@ -100,6 +101,8 @@ func (r *TextFileTailReader) readTextFile() {
 
 		r.onRecord(line)
 	}
+
+    //TODO Record process status.
 }
 
 func (r *TextFileTailReader) onRecord(line []byte) {

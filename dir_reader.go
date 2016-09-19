@@ -8,21 +8,23 @@ import (
 )
 
 type DirReader struct {
-    dir string
+    dir                string
 
+    fr                 FileReader
 
-    fr FileReader
-
-    waiting int32
-    wakeup chan int
+    waiting            int32
+    wakeup             chan int
     currentReadingFile string
 
-    mutex sync.Mutex
-    files *list.List // The files to be reading
+    Running            bool
+
+    mutex              sync.Mutex
+    files              *list.List // The files to be reading
 }
 
 func NewPathReader(dir string) (*DirReader, error) {
     r := &DirReader{}
+    r.Running = true
     r.dir = dir
     r.waiting = 0
     r.files = list.New()
@@ -58,7 +60,7 @@ func (r *DirReader) OnFileCreated(file string) (err error) {
     r.add(file)
     if atomic.LoadInt32(&r.waiting) > 0 && r.files.Len() == 1 {
         // r.waiting : we will send a signal only when the goroutine is waiting
-        // r.files.Len() == 0 : when we create more than 2 files in the same time, the waiting goroutine may be still waiting when we try to send the second signal
+        // r.files.Len() == 0 : If we create more than 2 files in the same time, the waiting goroutine may be still waiting when we try to send the second signal
         glog.Infof("send kCreate signal")
         r.wakeup <- kCreate
     } else {
@@ -68,16 +70,20 @@ func (r *DirReader) OnFileCreated(file string) (err error) {
 }
 
 func (r *DirReader) createReader() FileReader {
-    if *reader_type == "PTailReader" || *reader_type == "GzipReader" {
+    if *readerType == "PTailReader" || *readerType == "GzipReader" {
         return NewTextFileTailReader(r)
     }
 
     return nil
 }
 
+func (r *DirReader) Stop() {
+    r.Running = false
+}
+
 func (r *DirReader) Read() (err error) {
     glog.Infof("Starting to read files ...")
-    for {
+    for r.Running {
         if r.files.Len() == 0 {
             glog.Infof("No more files. Waiting ...")
             r.Wait()
@@ -99,6 +105,8 @@ func (r *DirReader) Read() (err error) {
         glog.Infof("Finished to process file %v", r.currentReadingFile)
         dispatcher.status.OnFileProcessingFinished(r.currentReadingFile, startTime)
     }
+
+    return nil
 }
 
 func (r *DirReader) nextFile() string {
