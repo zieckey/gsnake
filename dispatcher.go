@@ -14,7 +14,6 @@ type Dispatcher struct {
 	status     *ProcessStatus
 	h          *FilesHandler
 	textModule TextModule
-	pcapModule PcapModule
 }
 
 var dispatcher *Dispatcher
@@ -117,8 +116,4 @@ func (d *Dispatcher) Close() {
 
 func (d *Dispatcher) RegisterTextModule(m TextModule) {
 	d.textModule = m
-}
-
-func (d *Dispatcher) RegisterPcapModule(m PcapModule) {
-	d.pcapModule = m
 }

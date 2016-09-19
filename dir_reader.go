@@ -70,8 +70,6 @@ func (r *DirReader) OnFileCreated(file string) (err error) {
 func (r *DirReader) createReader() FileReader {
     if *reader_type == "PTailReader" || *reader_type == "GzipReader" {
         return NewTextFileTailReader(r)
-    } else if *reader_type == "PcapReader" {
-        return NewPcapFileReader()
     }
 
     return nil
