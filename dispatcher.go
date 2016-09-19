@@ -18,7 +18,7 @@ type Dispatcher struct {
 
 var dispatcher *Dispatcher
 
-func NewDispatcher() (*Dispatcher, error) {
+func New() (*Dispatcher, error) {
 	var err error
 	dispatcher, err = newDispatcher(*dir)
 	return dispatcher, err

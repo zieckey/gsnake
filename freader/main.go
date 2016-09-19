@@ -19,7 +19,7 @@ func (m *MyTextModule) OnRecord(line []byte) {
  */
 func main() {
 	flag.Parse()
-	dispatcher, err := gsnake.NewDispatcher()
+	dispatcher, err := gsnake.New()
 	if err != nil {
 		panic(err.Error())
 		return
