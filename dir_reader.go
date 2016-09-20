@@ -37,6 +37,7 @@ func (r *DirReader) add(file string) (err error) {
     r.mutex.Lock()
     defer r.mutex.Unlock()
     r.files.PushBack(file)
+    glog.Infof("Add a file and waiting to process: %v", file)
     return err
 }
 
@@ -120,6 +121,7 @@ func (r *DirReader) nextFile() string {
         glog.Errorf("Get element from file List failed.")
         return ""
     }
+    glog.Infof("Got a next file : %v", file)
     return file
 }
 

@@ -32,8 +32,8 @@ func (r *PTailFileReader) LoadFile(filepath string, fp *os.File) (err error) {
 
 func (r *PTailFileReader) ReadLine() (line []byte, err error) {
     line, err = r.r.ReadBytes('\n')
-    //glog.Infof("len(line)=%v %v", len(line), base64.StdEncoding.EncodeToString(line))
+    glog.Infof("len(line)=%v %v", len(line), string(line))
     line = bytes.TrimRight(line, "\r\n")
-    //glog.Infof("len(line)=%v %v after trim", len(line), base64.StdEncoding.EncodeToString(line))
+    glog.Infof("len(line)=%v %v after trim", len(line), string(line))
     return line, err
 }

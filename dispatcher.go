@@ -142,7 +142,9 @@ func (d *Dispatcher) watchEvent(wg *sync.WaitGroup) {
                 }
             }
         case err := <-d.watcher.Error:
-            glog.Info("error:", err)
+            if err != nil {
+                glog.Info("error:", err)
+            }
         }
     }
 }
